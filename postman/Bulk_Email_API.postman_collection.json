@@ -1,0 +1,294 @@
+{
+  "info": {
+    "name": "Bulk Email Server API",
+    "description": "API collection for testing the bulk email server",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Checks",
+      "item": [
+        {
+          "name": "Server Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        },
+        {
+          "name": "Email Service Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/email/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "email", "health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Email Operations",
+      "item": [
+        {
+          "name": "Send Single Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"to\": \"recipient@example.com\",\n  \"subject\": \"Hello {{name}}!\",\n  \"html\": \"<h1>Hello {{name}}!</h1><p>This is a test email.</p>\",\n  \"text\": \"Hello {{name}}! This is a test email.\",\n  \"senderName\": \"Test Sender\",\n  \"replyTo\": \"noreply@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/email/send",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "email", "send"]
+            }
+          }
+        },
+        {
+          "name": "Send Bulk Emails",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipients\": [\n    {\n      \"email\": \"user1@example.com\",\n      \"name\": \"John Doe\",\n      \"firstName\": \"John\",\n      \"customData\": {\n        \"company\": \"ABC Corp\",\n        \"position\": \"Developer\"\n      }\n    },\n    {\n      \"email\": \"user2@example.com\",\n      \"name\": \"Jane Smith\",\n      \"firstName\": \"Jane\",\n      \"customData\": {\n        \"company\": \"XYZ Ltd\",\n        \"position\": \"Manager\"\n      }\n    }\n  ],\n  \"template\": {\n    \"subject\": \"Welcome {{firstName}}!\",\n    \"html\": \"<h1>Hello {{firstName}}!</h1><p>Welcome to {{customData.company}}!</p>\",\n    \"text\": \"Hello {{firstName}}! Welcome to {{customData.company}}!\"\n  },\n  \"options\": {\n    \"senderName\": \"Welcome Team\",\n    \"replyTo\": \"welcome@example.com\",\n    \"priority\": 5\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/email/send-bulk",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "email", "send-bulk"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "File Upload",
+      "item": [
+        {
+          "name": "Upload CSV",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "csvFile",
+                  "type": "file",
+                  "src": "examples/sample_emails.csv"
+                },
+                {
+                  "key": "emailColumn",
+                  "value": "email",
+                  "type": "text"
+                },
+                {
+                  "key": "nameColumn",
+                  "value": "name",
+                  "type": "text"
+                },
+                {
+                  "key": "firstNameColumn",
+                  "value": "firstName",
+                  "type": "text"
+                },
+                {
+                  "key": "lastNameColumn",
+                  "value": "lastName",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/email/upload-csv",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "email", "upload-csv"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Job Management",
+      "item": [
+        {
+          "name": "Get Job Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/email/job/:jobId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "email", "job", ":jobId"],
+              "variable": [
+                {
+                  "key": "jobId",
+                  "value": "1",
+                  "description": "Job ID to check"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Queue Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/email/queue/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "email", "queue", "stats"]
+            }
+          }
+        },
+        {
+          "name": "Cancel Job",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/email/job/:jobId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "email", "job", ":jobId"],
+              "variable": [
+                {
+                  "key": "jobId",
+                  "value": "1",
+                  "description": "Job ID to cancel"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Pause Queue",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/email/queue/pause",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "email", "queue", "pause"]
+            }
+          }
+        },
+        {
+          "name": "Resume Queue",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/email/queue/resume",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "email", "queue", "resume"]
+            }
+          }
+        },
+        {
+          "name": "Clean Queue",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"olderThanHours\": 24\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/email/queue/clean",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "email", "queue", "clean"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Account Management",
+      "item": [
+        {
+          "name": "Get Email Accounts Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/email/accounts",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "email", "accounts"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Templates",
+      "item": [
+        {
+          "name": "Get Predefined Templates",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/email/templates",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "email", "templates"]
+            }
+          }
+        },
+        {
+          "name": "Validate Template",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"template\": {\n    \"subject\": \"Hello {{name}}!\",\n    \"html\": \"<h1>Hello {{name}}!</h1><p>How are you today?</p>\",\n    \"text\": \"Hello {{name}}! How are you today?\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/email/templates/validate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "email", "templates", "validate"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

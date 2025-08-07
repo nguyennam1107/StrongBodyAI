@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # Redis service (optional but recommended for production)
+  redis:
+    image: redis:7-alpine
+    container_name: bulk-email-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+
+  # Bulk Email Server
+  bulk-email-server:
+    build: .
+    container_name: bulk-email-server
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      # Email configuration (set these in your .env file)
+      - EMAIL_USER_1=${EMAIL_USER_1}
+      - EMAIL_PASS_1=${EMAIL_PASS_1}
+      - EMAIL_USER_2=${EMAIL_USER_2}
+      - EMAIL_PASS_2=${EMAIL_PASS_2}
+      - EMAIL_USER_3=${EMAIL_USER_3}
+      - EMAIL_PASS_3=${EMAIL_PASS_3}
+      - EMAIL_ACCOUNTS_COUNT=${EMAIL_ACCOUNTS_COUNT}
+      - DAILY_EMAIL_LIMIT_PER_ACCOUNT=${DAILY_EMAIL_LIMIT_PER_ACCOUNT}
+      - EMAIL_SEND_DELAY=${EMAIL_SEND_DELAY}
+    volumes:
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+    depends_on:
+      - redis
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "const http=require('http');const req=http.request({hostname:'localhost',port:3000,path:'/health',method:'GET'},(res)=>{process.exit(res.statusCode===200?0:1)});req.on('error',()=>process.exit(1));req.end();"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Nginx reverse proxy (optional)
+  nginx:
+    image: nginx:alpine
+    container_name: bulk-email-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl
+    depends_on:
+      - bulk-email-server
+    restart: unless-stopped
+
+volumes:
+  redis_data:
