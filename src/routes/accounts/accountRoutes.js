@@ -8,7 +8,10 @@ const logger = require('../../utils/logger');
  * /api/email/accounts:
  *   get:
  *     summary: Thông tin tài khoản email
+ *     description: Liệt kê trạng thái các tài khoản cấu hình (sẵn sàng, giới hạn ngày, còn lại...).
  *     tags: [Accounts]
+ *     responses:
+ *       200: { description: OK }
  */
 router.get('/accounts', async (req, res) => {
   try {

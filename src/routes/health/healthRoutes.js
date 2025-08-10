@@ -9,7 +9,13 @@ const logger = require('../../utils/logger');
  * /api/email/health:
  *   get:
  *     summary: Kiểm tra tình trạng dịch vụ email
+ *     description: Trả về trạng thái kết nối email, queue và tài khoản.
  *     tags: [Health]
+ *     responses:
+ *       200:
+ *         description: OK
+ *       500:
+ *         description: Lỗi hệ thống
  */
 router.get('/health', async (req, res) => {
   try {
@@ -29,7 +35,11 @@ router.get('/health', async (req, res) => {
  * /api/email/test:
  *   get:
  *     summary: Test endpoint
+ *     description: Dùng để kiểm tra nhanh API hoạt động.
  *     tags: [Health]
+ *     responses:
+ *       200:
+ *         description: OK
  */
 router.get('/test', (req, res) => {
   res.json({ message: 'Email API is working', timestamp: new Date().toISOString(), version: 'v1.0.0' });

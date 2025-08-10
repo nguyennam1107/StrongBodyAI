@@ -8,7 +8,11 @@ const logger = require('../../utils/logger');
  * /api/email/queue/stats:
  *   get:
  *     summary: Thống kê queue
+ *     description: Lấy thống kê số lượng job theo trạng thái.
  *     tags: [Queue]
+ *     responses:
+ *       200: { description: OK }
+ *       503: { description: Queue service không khả dụng }
  */
 router.get('/queue/stats', async (req, res) => {
   try {
@@ -28,6 +32,16 @@ router.get('/queue/stats', async (req, res) => {
  *   get:
  *     summary: Kiểm tra trạng thái job
  *     tags: [Queue]
+ *     parameters:
+ *       - in: path
+ *         name: jobId
+ *         required: true
+ *         schema: { type: string }
+ *         description: ID của job
+ *     responses:
+ *       200: { description: OK }
+ *       404: { description: Job không tìm thấy }
+ *       503: { description: Queue service không khả dụng }
  */
 router.get('/job/:jobId', async (req, res) => {
   try {
@@ -47,6 +61,15 @@ router.get('/job/:jobId', async (req, res) => {
  *   delete:
  *     summary: Hủy job
  *     tags: [Queue]
+ *     parameters:
+ *       - in: path
+ *         name: jobId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: Hủy thành công }
+ *       500: { description: Lỗi hủy }
+ *       503: { description: Queue service không khả dụng }
  */
 router.delete('/job/:jobId', async (req, res) => {
   try {
@@ -66,6 +89,9 @@ router.delete('/job/:jobId', async (req, res) => {
  *   post:
  *     summary: Tạm dừng queue
  *     tags: [Queue]
+ *     responses:
+ *       200: { description: Queue paused }
+ *       503: { description: Queue service không khả dụng }
  */
 router.post('/queue/pause', async (req, res) => {
   try {
@@ -85,6 +111,9 @@ router.post('/queue/pause', async (req, res) => {
  *   post:
  *     summary: Tiếp tục queue
  *     tags: [Queue]
+ *     responses:
+ *       200: { description: Queue resumed }
+ *       503: { description: Queue service không khả dụng }
  */
 router.post('/queue/resume', async (req, res) => {
   try {
@@ -103,7 +132,19 @@ router.post('/queue/resume', async (req, res) => {
  * /api/email/queue/clean:
  *   post:
  *     summary: Dọn dẹp queue
+ *     description: Xóa các job completed/failed cũ hơn số giờ chỉ định.
  *     tags: [Queue]
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               olderThanHours: { type: integer, default: 24 }
+ *     responses:
+ *       200: { description: Dọn dẹp thành công }
+ *       503: { description: Queue service không khả dụng }
  */
 router.post('/queue/clean', async (req, res) => {
   try {

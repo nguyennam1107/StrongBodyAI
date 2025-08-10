@@ -9,7 +9,59 @@ const logger = require('../../utils/logger');
  * /api/email/send:
  *   post:
  *     summary: Gửi email đơn lẻ
+ *     description: Gửi một email đến một người nhận. Hỗ trợ HTML hoặc text. Ít nhất một trong html/text phải có.
  *     tags: [Email]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [to, subject]
+ *             properties:
+ *               to:
+ *                 type: string
+ *                 format: email
+ *                 example: recipient@example.com
+ *               subject:
+ *                 type: string
+ *                 example: Hello from API!
+ *               html:
+ *                 type: string
+ *                 example: <h1>Hello!</h1><p>This is a test email.</p>
+ *               text:
+ *                 type: string
+ *                 example: Hello! This is a test email.
+ *               senderName:
+ *                 type: string
+ *                 example: My Company
+ *               replyTo:
+ *                 type: string
+ *                 format: email
+ *                 example: noreply@example.com
+ *     responses:
+ *       200:
+ *         description: Email gửi thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 result:
+ *                   type: object
+ *                   properties:
+ *                     messageId: { type: string }
+ *                     recipient: { type: string }
+ *                     senderAccount: { type: string }
+ *                     timestamp: { type: string, format: date-time }
+ *                 contentWarnings:
+ *                   type: array
+ *                   items: { type: string }
+ *       400:
+ *         description: Lỗi validation
+ *       500:
+ *         description: Lỗi server
  */
 router.post('/send', async (req, res) => {
   try {
@@ -38,8 +90,43 @@ router.post('/send', async (req, res) => {
  * @swagger
  * /api/email/send-mail:
  *   post:
- *     summary: Gửi email với SMTP tùy chỉnh
+ *     summary: Gửi email với SMTP tùy chỉnh (per-request credentials)
+ *     description: Cho phép sử dụng Gmail App Password hoặc SMTP server tùy chỉnh truyền trực tiếp trong request.
  *     tags: [Email]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [to_email, subject, body, smtp_user, smtp_pass]
+ *             properties:
+ *               to_email: { type: string, format: email, example: user@example.com }
+ *               subject: { type: string, example: Custom SMTP Test }
+ *               body: { type: string, description: HTML hoặc text, example: <h1>Hi</h1><p>Custom SMTP.</p> }
+ *               smtp_user: { type: string, format: email, example: yourgmail@gmail.com }
+ *               smtp_pass: { type: string, example: abcd efgh ijkl mnop }
+ *               smtp_server: { type: string, default: smtp.gmail.com }
+ *               smtp_port: { type: integer, default: 587 }
+ *         application/x-www-form-urlencoded:
+ *           schema:
+ *             type: object
+ *             required: [to_email, subject, body, smtp_user, smtp_pass]
+ *             properties:
+ *               to_email: { type: string, format: email }
+ *               subject: { type: string }
+ *               body: { type: string }
+ *               smtp_user: { type: string, format: email }
+ *               smtp_pass: { type: string }
+ *               smtp_server: { type: string, default: smtp.gmail.com }
+ *               smtp_port: { type: integer, default: 587 }
+ *     responses:
+ *       200:
+ *         description: Email gửi thành công
+ *       400:
+ *         description: Lỗi dữ liệu hoặc xác thực SMTP
+ *       500:
+ *         description: Lỗi gửi email
  */
 router.post('/send-mail', async (req, res) => {
   try {

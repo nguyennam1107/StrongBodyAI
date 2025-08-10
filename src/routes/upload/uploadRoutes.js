@@ -9,7 +9,39 @@ const logger = require('../../utils/logger');
  * /api/email/upload-csv:
  *   post:
  *     summary: Upload CSV và phân tích recipients
+ *     description: Upload file CSV để trích xuất danh sách người nhận. Hỗ trợ tự động nhận diện cột bổ sung làm customData.
  *     tags: [Upload]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required: [csvFile, emailColumn]
+ *             properties:
+ *               csvFile:
+ *                 type: string
+ *                 format: binary
+ *               emailColumn:
+ *                 type: string
+ *                 default: email
+ *               nameColumn:
+ *                 type: string
+ *                 default: name
+ *               firstNameColumn:
+ *                 type: string
+ *               lastNameColumn:
+ *                 type: string
+ *               delimiter:
+ *                 type: string
+ *                 default: ,
+ *     responses:
+ *       200:
+ *         description: Phân tích thành công
+ *       400:
+ *         description: Lỗi upload hoặc không có email hợp lệ
+ *       500:
+ *         description: Lỗi server
  */
 router.post('/upload-csv', fileUploadService.uploadCsvFile(), async (req, res) => {
   try {

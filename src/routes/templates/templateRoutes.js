@@ -8,7 +8,37 @@ const logger = require('../../utils/logger');
  * /api/email/templates:
  *   get:
  *     summary: Danh sách template có sẵn
+ *     description: Trả về danh sách template định nghĩa sẵn và các biến có thể sử dụng.
  *     tags: [Templates]
+ *     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 templates:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                       name:
+ *                         type: string
+ *                       subject:
+ *                         type: string
+ *                       html:
+ *                         type: string
+ *                       text:
+ *                         type: string
+ *                       variables:
+ *                         type: array
+ *                         items:
+ *                           type: string
  */
 router.get('/templates', (req, res) => {
   try {
@@ -30,12 +60,87 @@ router.get('/templates', (req, res) => {
  * /api/email/templates/validate:
  *   post:
  *     summary: Validate email template
+ *     description: Kiểm tra tính hợp lệ và trích xuất biến từ template.
  *     tags: [Templates]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [template]
+ *             properties:
+ *               template:
+ *                 type: object
+ *                 properties:
+ *                   subject:
+ *                     type: string
+ *                   html:
+ *                     type: string
+ *                   text:
+ *                     type: string
+ *     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 validation:
+ *                   type: object
+ *                   properties:
+ *                     subject:
+ *                       type: object
+ *                       properties:
+ *                         valid:
+ *                           type: boolean
+ *                         errors:
+ *                           type: array
+ *                           items:
+ *                             type: string
+ *                     html:
+ *                       type: object
+ *                       properties:
+ *                         valid:
+ *                           type: boolean
+ *                         errors:
+ *                           type: array
+ *                           items:
+ *                             type: string
+ *                     text:
+ *                       type: object
+ *                       properties:
+ *                         valid:
+ *                           type: boolean
+ *                         errors:
+ *                           type: array
+ *                           items:
+ *                             type: string
+ *                     overall:
+ *                       type: boolean
+ *                 variables:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *       400:
+ *         description: Thiếu template
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 error:
+ *                   type: string
  */
 router.post('/templates/validate', (req, res) => {
   try {
     const { template } = req.body;
-    if (!template) return res.status(400).json({ error: 'Template is required' });
+    if (!template) return res.status(400).json({ success: false, error: 'Template is required' });
     const subjectValidation = validateTemplate(template.subject || '');
     const htmlValidation = template.html ? validateTemplate(template.html) : { valid: true };
     const textValidation = template.text ? validateTemplate(template.text) : { valid: true };
