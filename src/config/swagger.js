@@ -350,7 +350,8 @@ const options = {
       }
     }
   },
-  apis: ['./src/routes/*.js'], // Đường dẫn đến file routes chứa JSDoc comments
+  // Scan all route files recursively (including newly split route modules)
+  apis: ['./src/routes/*.js', './src/routes/**/*.js'],
 };
 
 const specs = swaggerJsdoc(options);
